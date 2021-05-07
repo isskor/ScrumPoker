@@ -282,7 +282,7 @@ const ChatMessages = styled.div``;
 const Content = styled.div`
   display: flex;
   width: 100%;
-  height: calc(100vh - 220px);
+  height: calc(100vh - 350px);
   .list {
     flex: 0.18;
   }

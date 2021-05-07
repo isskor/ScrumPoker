@@ -176,7 +176,7 @@ function Login() {
                 onChange={(e) => setDisplayName(e.target.value)}
               />
               <button type='submit' disabled={loading}>
-                {!loading ? 'Submit' : 'Loading'}Submit
+                {!loading ? 'Submit' : 'Loading'}
               </button>
             </DisplayNameForm>
           </>

@@ -109,6 +109,16 @@ function Sidebar() {
             >
               {copied ? 'Copied! ' : 'Copy to clipboard'}
             </button>
+            <div className='info'>
+              <h5>Rules</h5>
+              <p> - Only Master can enter new question and show answers</p>
+              <p> - Enter and submit into the input field for new task</p>
+              <p>
+                {' '}
+                - You cannot redo a task, if needed re-enter the task in the
+                input
+              </p>
+            </div>
           </>
         )}
       </RoomInfo>
@@ -213,6 +223,14 @@ const RoomInfo = styled.div`
   .copied {
     background: #aabafd;
     box-shadow: inset 20px 20px 60px #919ed7, inset -20px -20px 60px #c4d6ff;
+  }
+  .info {
+    flex: 100%;
+    margin-top: 1rem;
+    p {
+      font-size: 0.9rem;
+      padding: 0.2rem;
+    }
   }
 `;
 const Members = styled.div`

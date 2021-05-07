@@ -9,7 +9,7 @@ const ShowSelectedCards = ({ answers }) => {
           {answers.map((show, i) => {
             return (
               <DeckCard key={i}>
-                {show.answer ? (
+                {show.answer === 'coffee' ? (
                   <img src={coffee} alt='coffee' />
                 ) : (
                   <span>{show.answer}</span>
