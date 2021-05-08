@@ -5,6 +5,7 @@ import { selectRoomId } from '../features/appSlice';
 import ChatInput from './ChatInput';
 import { useCollection, useDocument } from 'react-firebase-hooks/firestore';
 import { db, auth } from '../firebase';
+import Message from './Message';
 
 import firebase from 'firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -13,6 +14,7 @@ import ShowSelectedCards from './ShowSelectedCards';
 import HiddenCards from './HiddenCards';
 import SideList from './SideList';
 import Task from './Task';
+import TaskInput from './TaskInput';
 
 const deck = [0, 0.5, 1, 2, 3, 5, 8, 13, 20, 40, 100, '?', 'coffee'];
 
@@ -46,13 +48,13 @@ function Chat() {
     roomId && db.collection('rooms').doc(roomId)
   );
 
-  // get room messages
-  const [roomMessages, loading] = useCollection(
+  // get room tasks
+  const [roomTasks, loading] = useCollection(
     roomId &&
       db
         .collection('rooms')
         .doc(roomId)
-        .collection('messages')
+        .collection('tasks')
         .orderBy('timestamp', 'asc')
   );
   const [roomAnswers, answersLoading, error2] = useCollection(
@@ -60,7 +62,7 @@ function Chat() {
       db
         .collection('rooms')
         .doc(roomId)
-        .collection('messages')
+        .collection('tasks')
         .doc(currentQuestion.id)
         .collection('answers')
         .orderBy('timestamp', 'asc')
@@ -71,7 +73,7 @@ function Chat() {
       db
         .collection('rooms')
         .doc(roomId)
-        .collection('messages')
+        .collection('tasks')
         .doc(currentQuestion.id)
         .collection('showAnswers')
         .orderBy('timestamp', 'asc')
@@ -83,8 +85,8 @@ function Chat() {
   }, [roomId, loading2]);
 
   useEffect(() => {
-    if (roomMessages?.docs.length > 0) {
-      let last = roomMessages.docs.pop();
+    if (roomTasks?.docs.length > 0) {
+      let last = roomTasks.docs.pop();
       // set new question
       setCurrentQuestion({ ...last.data(), id: last.id });
       // reset users selection
@@ -92,7 +94,7 @@ function Chat() {
       setUserSelectId(null);
       setShow(false);
     }
-  }, [roomMessages]);
+  }, [roomTasks]);
 
   // add selection to current task
   const handleUserSelect = (value) => {
@@ -101,7 +103,7 @@ function Chat() {
       // user have already answered update users answer
       db.collection('rooms')
         .doc(roomId)
-        .collection('messages')
+        .collection('tasks')
         .doc(currentQuestion.id)
         .collection('answers')
         .doc(userSelectId)
@@ -110,7 +112,7 @@ function Chat() {
       // user have not answered yet, add a new answer
       db.collection('rooms')
         .doc(roomId)
-        .collection('messages')
+        .collection('tasks')
         .doc(currentQuestion.id)
         .collection('answers')
         .add({
@@ -125,10 +127,17 @@ function Chat() {
   };
 
   const handleShowAnswers = () => {
+    const avg = parseFloat(
+      (
+        roomAnswers.docs
+          .map((a) => a.data())
+          .reduce((acc, cur) => acc + cur.answer, 0) / roomAnswers.docs.length
+      ).toFixed(2)
+    );
     if (roomAnswers.docs.length > 0) {
       db.collection('rooms')
         .doc(roomId)
-        .collection('messages')
+        .collection('tasks')
         .doc(currentQuestion.id)
         .collection('showAnswers')
         .add({
@@ -138,14 +147,10 @@ function Chat() {
 
       db.collection('rooms')
         .doc(roomId)
-        .collection('messages')
+        .collection('tasks')
         .doc(currentQuestion.id)
         .update({
-          score:
-            roomAnswers.docs
-              .map((a) => a.data())
-              .reduce((acc, cur) => acc + cur.answer, 0) /
-            roomAnswers.docs.length,
+          score: avg,
         })
         .then(() => {
           setShow(true);
@@ -154,19 +159,18 @@ function Chat() {
   };
   console.log(show);
   const handleRedo = async () => {
-    let message = currentQuestion.message;
+    let task = currentQuestion.task;
 
     // add again
-    db.collection('rooms').doc(roomId).collection('messages').add({
-      message: message,
+    db.collection('rooms').doc(roomId).collection('tasks').add({
+      task: task,
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       user: user.displayName,
-      userImage: user.photoURL,
     });
   };
 
   return (
-    <ChatContainer>
+    <Container>
       {!roomId && <h1>Create a room or join one!</h1>}
       {roomId && roomDetails && !roomDetails.exists && (
         <h1>No Room Found, Create One!</h1>
@@ -174,13 +178,10 @@ function Chat() {
       {roomDetails && roomDetails?.exists && (
         <>
           <Header>
-            <HeaderLeft>
+            <HeaderInput>
               {roomMaster && (
                 <>
-                  <ChatInput
-                    channelName={roomDetails?.data().name}
-                    channelId={roomId}
-                  />
+                  <TaskInput roomId={roomId} />
                   <div className='showAnswer'>
                     {roomAnswers?.docs.length > 0 && (
                       <>
@@ -196,73 +197,72 @@ function Chat() {
                   </div>
                 </>
               )}
-            </HeaderLeft>
+            </HeaderInput>
           </Header>
 
           <Content>
-            <div className='main'>
-              <Task task={currentQuestion} />
-              <Cards>
-                {showRoomAnswers && (
-                  <>
-                    <ShowSelectedCards
-                      answers={showRoomAnswers?.docs[0]?.data().showAnswers}
-                    />
-                  </>
+            <Task task={currentQuestion} />
+            <Cards>
+              {showRoomAnswers && (
+                <>
+                  <ShowSelectedCards
+                    answers={showRoomAnswers?.docs[0]?.data().showAnswers}
+                  />
+                </>
+              )}
+              {roomAnswers &&
+                !(showRoomAnswers?.docs[0]?.data()?.showAnswers.length > 0) && (
+                  <HiddenCards hiddenAnswers={roomAnswers.docs.length} />
                 )}
-                {roomAnswers &&
-                  !(
-                    showRoomAnswers?.docs[0]?.data()?.showAnswers.length > 0
-                  ) && <HiddenCards hiddenAnswers={roomAnswers.docs.length} />}
-                {currentQuestion &&
-                  !(
-                    showRoomAnswers?.docs[0]?.data()?.showAnswers.length > 0
-                  ) && (
-                    <PokerCards
-                      deck={deck}
-                      handleUserSelect={handleUserSelect}
-                      userSelect={userSelect}
-                    />
-                  )}
-              </Cards>
-            </div>
-            <div className='list'>
-              <SideList
-                list={roomMessages?.docs}
-                setCurrentQuestion={setCurrentQuestion}
-              />
-            </div>
+              {currentQuestion &&
+                !(showRoomAnswers?.docs[0]?.data()?.showAnswers.length > 0) && (
+                  <PokerCards
+                    deck={deck}
+                    handleUserSelect={handleUserSelect}
+                    userSelect={userSelect}
+                  />
+                )}
+            </Cards>
           </Content>
+          {/* <div className='list'>
+            <SideList
+              list={roomTasks?.docs}
+              setCurrentQuestion={setCurrentQuestion}
+            />
+          </div> */}
         </>
       )}
-    </ChatContainer>
+    </Container>
   );
 }
 export default Chat;
 
-const ChatBottom = styled.div`
-  /* padding-bottom: 200px; */
-`;
-
-const ChatContainer = styled.div`
-  /* margin-top: 50px; */
+const Container = styled.div`
   flex: 0.7;
   flex-grow: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 160px 1fr;
+  @media (max-width: 768px) {
+    margin-top: 3rem;
+  }
 `;
 
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 20px;
+  padding-top: 20px;
+  grid-column: 1;
+  width: 100%;
+  justify-self: center;
 `;
 
-const HeaderLeft = styled.div`
-  /* width: 70%; */
-  flex: 0.82;
+const HeaderInput = styled.div`
+  width: 100%;
   display: flex;
   flex-direction: column;
   .showAnswer {
-    margin-top: 2rem;
+    margin-top: 1rem;
     align-self: center;
     min-height: 50px;
     button {
@@ -284,21 +284,14 @@ const HeaderLeft = styled.div`
   }
 `;
 
-const ChatMessages = styled.div``;
-const Content = styled.div`
-  display: flex;
+const Content = styled.main`
+  grid-column: 1;
+  justify-self: center;
   width: 100%;
-  height: calc(100vh - 350px);
-  .list {
-    flex: 0.18;
-  }
-  .main {
-    flex: 0.82;
-  }
+  height: calc(100vh - 180px);
 `;
 const Cards = styled.div`
-  height: 100%;
+  height: calc(100vh - 340px);
   display: grid;
-  grid-template-rows: repeat(3, 30%);
-  /* justify-content: center; */
+  grid-template-rows: repeat(3, 33%);
 `;

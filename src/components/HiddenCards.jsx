@@ -2,10 +2,7 @@ import styled from 'styled-components';
 import React from 'react';
 
 const HiddenCards = ({ hiddenAnswers }) => {
-  console.log(hiddenAnswers);
-
   let cards = [];
-  console.log(cards);
   for (let i = 0; i < hiddenAnswers; i++) {
     cards.push(<DeckCard key={i}></DeckCard>);
   }
@@ -24,8 +21,8 @@ const DeckList = styled.div`
 `;
 const DeckCard = styled.div`
   background: white;
-  width: 120px;
-  height: 160px;
+  width: 90px;
+  height: 120px;
   /* padding: 2em; */
   cursor: pointer;
   border-radius: 0.5rem;
@@ -33,7 +30,7 @@ const DeckCard = styled.div`
   justify-content: center;
   align-items: center;
   span {
-    font-size: 3rem;
+    font-size: 2.4rem;
   }
 
   &.selected {

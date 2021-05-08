@@ -1,13 +1,11 @@
 import { useRef, useState } from 'react';
 import styled from 'styled-components';
-import FiberManualRecordIcon from '@material-ui/icons/FiberManualRecord';
-
 import { useCollection, useDocument } from 'react-firebase-hooks/firestore';
-
 import { auth, db } from '../firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useDispatch, useSelector } from 'react-redux';
 import { enterRoom, selectRoomId } from '../features/appSlice';
+import { selectLeftSidebar } from '../features/controllerSlice';
 
 function Sidebar() {
   const roomId = useSelector(selectRoomId);
@@ -21,20 +19,6 @@ function Sidebar() {
   const [users, loadingUsers, errorUser] = useCollection(
     db.collection('rooms').doc(roomId).collection('users')
   );
-
-  const [roomMessages, loading3] = useCollection(
-    roomId &&
-      db
-        .collection('rooms')
-        .doc(roomId)
-        .collection('messages')
-        .orderBy('timestamp', 'asc')
-  );
-
-  console.log('users---', users?.docs[0].data());
-  console.log(roomDetails?.data());
-  console.log('authuser', authUser);
-  console.log('authuser', authUser);
 
   const checkMaster = () => {
     let master = users?.docs.filter((u) => {
@@ -83,61 +67,61 @@ function Sidebar() {
     auth.signOut();
   };
 
+  const leftSidebar = useSelector(selectLeftSidebar);
+
   return (
-    <SidebarContainer>
-      <SidebarHeader>
-        <SidebarInfo>
-          <h3>
-            <FiberManualRecordIcon />
-            {authUser.displayName}
-          </h3>
-          <button onClick={handleLogout}>Sign Out</button>
-        </SidebarInfo>
-      </SidebarHeader>
-      {/* <div onClick={join}>join</div> */}
-      <RoomInfo>
-        {roomDetails && (
-          <>
-            <h3>Room {roomDetails.data().name}</h3>
-            <p>Share Room Id for invites</p>
+    <>
+      <SidebarContainer open={leftSidebar ? true : false}>
+        <div className='wrapper'>
+          <SidebarHeader>
+            <SidebarInfo>
+              <h3>{authUser.displayName}</h3>
+              <button onClick={handleLogout}>Sign Out</button>
+            </SidebarInfo>
+          </SidebarHeader>
+          {/* <div onClick={join}>join</div> */}
+          <RoomInfo>
+            {roomDetails && (
+              <>
+                <h3>Room {roomDetails.data().name}</h3>
+                <p>Share Room Id for invites</p>
 
-            <h4>ID: {roomDetails?.id}</h4>
+                <h5>ID: {roomDetails?.id}</h5>
 
-            <button
-              onClick={copyToClipboard}
-              className={copied ? 'copied' : ''}
-            >
-              {copied ? 'Copied! ' : 'Copy to clipboard'}
-            </button>
-            <div className='info'>
+                <button
+                  onClick={copyToClipboard}
+                  className={copied ? 'copied' : ''}
+                >
+                  {copied ? 'Copied! ' : 'Copy to clipboard'}
+                </button>
+                {/* <div className='info'>
               <h5>Rules</h5>
               <p> - Only Master can enter new question and show answers</p>
               <p> - Enter and submit into the input field for new task</p>
-              <p>
-                {' '}
-                - You cannot redo a task, if needed re-enter the task in the
-                input
-              </p>
-            </div>
-          </>
-        )}
-      </RoomInfo>
-      <Members>
-        <h3>Members</h3>
-        <ul>
-          {users?.docs.map((user) => (
-            <li key={user.id}>
-              <span>
-                {user.data().user} {user.data().master ? '- MASTER' : ''}
-              </span>
-              {!user.data().master && checkMaster() && (
-                <button onClick={() => giveMaster(user.id)}>Give Master</button>
-              )}
-            </li>
-          ))}
-        </ul>
-      </Members>
-    </SidebarContainer>
+            </div> */}
+              </>
+            )}
+          </RoomInfo>
+          <Members>
+            <h3>Members</h3>
+            <ul>
+              {users?.docs.map((user) => (
+                <li key={user.id}>
+                  <span>
+                    {user.data().user} {user.data().master ? '- MASTER' : ''}
+                  </span>
+                  {!user.data().master && checkMaster() && (
+                    <button onClick={() => giveMaster(user.id)}>
+                      Give Master
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </Members>
+        </div>
+      </SidebarContainer>
+    </>
   );
 }
 
@@ -146,8 +130,32 @@ const SidebarContainer = styled.div`
   /* background-color: var(--slack-color); */
   color: #e8e8e8;
   flex: 0.3;
-  max-width: 260px;
-  padding-left: 1rem;
+  display: ${(props) => (props.open ? 'block !important' : 'none')};
+
+  @media (max-width: 768px) {
+    display: none;
+    position: fixed;
+    background: linear-gradient(
+      90deg,
+      rgba(188, 196, 251, 1) 0%,
+      rgba(148, 200, 233, 1) 100%
+    );
+    width: 100%;
+    height: 100%;
+    z-index: 20;
+    left: 0;
+    padding-top: 2rem;
+    .wrapper {
+      margin: 0 auto;
+      max-width: 240px;
+    }
+    /* padding-right: 5rem; */
+  }
+  @media (min-width: 768px) {
+    padding-left: 1rem;
+    max-width: 200px;
+    margin-top: 3rem;
+  }
 `;
 
 const SidebarHeader = styled.div`
@@ -156,17 +164,9 @@ const SidebarHeader = styled.div`
   /* opacity: 0.6; */
   padding: 13px;
   margin-top: 30px;
-  background-color: white;
+  background: rgb(255, 255, 255, 0.5);
   color: black;
   border-radius: 1rem;
-
-  > .MuiSvgIcon-root {
-    padding: 8px;
-    color: #49274b;
-    font-size: 18px;
-    background-color: white;
-    border-radius: 50%;
-  }
 `;
 const SidebarInfo = styled.div`
   width: 100%;
@@ -179,8 +179,8 @@ const SidebarInfo = styled.div`
 
   > h3 > .MuiSvgIcon-root {
     font-size: 14px;
-    margin-top: 1px;
-    margin-right: 2px;
+    /* margin-top: 1px; */
+    /* margin-right: 2px; */
     color: green;
   }
   button {
@@ -194,9 +194,9 @@ const SidebarInfo = styled.div`
   }
 `;
 const RoomInfo = styled.div`
-  padding: 1rem 2rem;
-  margin-top: 2rem;
-  background: white;
+  padding: 1rem;
+  margin-top: 1rem;
+  background: rgb(255, 255, 255, 0.5);
   border-radius: 1.4rem;
   color: black;
   display: flex;
@@ -205,13 +205,17 @@ const RoomInfo = styled.div`
   & > * {
     padding-bottom: 1rem;
   }
+  h3,
+  h5 {
+    flex: 100%;
+  }
   button {
-    flex: 1;
+    /* flex: 1; */
     border: none;
     outline: none;
-    font-size: 1rem;
+    font-size: 0.9rem;
     border-radius: 1rem;
-    padding: 1em 1.5em;
+    padding: 1em;
     display: block;
     margin: 0 auto;
     cursor: pointer;
@@ -224,19 +228,14 @@ const RoomInfo = styled.div`
     background: #aabafd;
     box-shadow: inset 20px 20px 60px #919ed7, inset -20px -20px 60px #c4d6ff;
   }
-  .info {
-    flex: 100%;
-    margin-top: 1rem;
-    p {
-      font-size: 0.9rem;
-      padding: 0.2rem;
-    }
+  h5 {
+    font-size: 0.9rem;
   }
 `;
 const Members = styled.div`
-  padding: 1rem 2rem;
+  padding: 1rem;
   margin-top: 2rem;
-  background: white;
+  background: rgb(255, 255, 255, 0.5);
   border-radius: 1.4rem;
   color: black;
   h3 {

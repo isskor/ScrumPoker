@@ -2,6 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import coffee from '../images/—Pngtree—creative flat coffee cup silhouette_5569828.png';
 const ShowSelectedCards = ({ answers }) => {
+  console.log(answers);
+  const avg = parseFloat(
+    (
+      answers?.reduce((acc, cur) => acc + cur.answer, 0) / answers?.length
+    ).toFixed(2)
+  );
   if (answers?.length > 0)
     return (
       <>
@@ -21,9 +27,7 @@ const ShowSelectedCards = ({ answers }) => {
         </DeckList>
         <Average>
           <p>Average Score</p>
-          <p>
-            {answers.reduce((acc, cur) => acc + cur.answer, 0) / answers.length}
-          </p>
+          <p>{`${avg}`}</p>
         </Average>
       </>
     );
@@ -42,8 +46,8 @@ const DeckList = styled.div`
 `;
 const DeckCard = styled.div`
   background: white;
-  width: 120px;
-  height: 160px;
+  width: 90px;
+  height: 120px;
   cursor: pointer;
   border-radius: 0.5rem;
   display: flex;
@@ -51,7 +55,7 @@ const DeckCard = styled.div`
   justify-content: space-between;
   align-items: center;
   span {
-    font-size: 3rem;
+    font-size: 2.4rem;
     padding-bottom: 1rem;
   }
   img {
@@ -66,7 +70,7 @@ const DeckCard = styled.div`
 `;
 
 const Average = styled.div`
-  /* margin: 5rem auto 0; */
+  margin: 2rem auto 0;
   text-align: center;
   p {
     font-size: 2rem;

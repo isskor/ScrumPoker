@@ -1,7 +1,6 @@
-import { Button } from '@material-ui/core';
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { db, auth, provider } from '../firebase';
+import { db, auth } from '../firebase';
 import { useDispatch } from 'react-redux';
 import { enterRoom } from '../features/appSlice';
 import firebase from 'firebase';
@@ -14,14 +13,12 @@ function Login() {
   const [createRoom, setCreateRoom] = useState('');
   const [roomExist, setRoomExist] = useState(false);
   const [displayName, setDisplayName] = useState('');
-  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const dispatch = useDispatch();
 
   const joinRoom = (e) => {
     e.preventDefault();
-    console.log('try');
-    // console.log(db.collection('rooms').add);
     setLoading(true);
     setError(null);
     db.collection('rooms')
@@ -29,13 +26,9 @@ function Login() {
       .get()
       .then((doc, err) => {
         if (doc.exists) {
-          console.log('doc exist', doc.exists);
-          firebase
-            .auth()
+          auth
             .signInAnonymously()
             .then(() => {
-              // Signed in..
-              console.log('signed in');
               setLoading(false);
               setRoomExist(true);
             })
@@ -57,12 +50,11 @@ function Login() {
   const handleDisplayName = (e) => {
     e.preventDefault();
     setLoading(true);
-    const user = firebase.auth().currentUser;
+    const user = auth.currentUser;
     if (user) {
       user
         .updateProfile({ displayName })
         .then(() => {
-          console.log(user.displayName);
           db.collection('rooms').doc(room).collection('users').add({
             timestamp: firebase.firestore.FieldValue.serverTimestamp(),
             user: user.displayName,
@@ -78,7 +70,6 @@ function Login() {
 
   const addChannel = (e) => {
     e.preventDefault();
-    // console.log(db.collection('rooms').add);
     setLoading(true);
     if (createRoom) {
       db.collection('rooms')
@@ -87,15 +78,10 @@ function Login() {
         })
         .then(async (res) => {
           if (res.id) {
-            firebase
-              .auth()
+            auth
               .signInAnonymously()
               .then(() => {
-                // Signed in..
-                console.log('signed in');
-                // setRoomExist(true);
-
-                const user = firebase.auth().currentUser;
+                const user = auth.currentUser;
                 user.updateProfile({ displayName }).then(() => {
                   console.log(user.displayName);
                   db.collection('rooms').doc(res.id).collection('users').add({

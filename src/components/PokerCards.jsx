@@ -29,14 +29,16 @@ const DeckList = styled.div`
   gap: 1rem;
   /* width: 80%; */
 
-  margin: 0 auto;
+  /* margin: 0 auto; */
   flex-wrap: wrap;
-  /* justify-content: center; */
+  justify-content: center;
 `;
 const DeckCard = styled.div`
   background: white;
-  width: 60px;
-  height: 90px;
+  width: 10%;
+  max-width: 60px;
+  /* height: 90px; */
+  height: clamp(60px, 50%, 90px);
   /* padding: 2em; */
   cursor: pointer;
   border-radius: 0.5rem;
@@ -46,8 +48,12 @@ const DeckCard = styled.div`
   &:hover {
     box-shadow: 0 0 30px rgb(167, 124, 247);
   }
+  @media (min-width: 768px) {
+    height: 90px;
+  }
   span {
-    font-size: 2rem;
+    /* font-size: 2rem; */
+    font-size: clamp(1rem, 2.5vw, 2rem);
   }
 
   &.selected {

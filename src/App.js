@@ -5,11 +5,13 @@ import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import styled from 'styled-components';
 import Chat from './components/Chat';
+import Main from './components/Main';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import Login from './components/Login';
 import { auth } from './firebase';
 import { selectRoomId } from './features/appSlice';
 import { useSelector } from 'react-redux';
+import SideList from './components/SideList';
 
 function App() {
   const [user, loading] = useAuthState(auth);
@@ -40,9 +42,10 @@ function App() {
                 <Switch>
                   <Route path='/' exact>
                     {/* Chat */}
-                    <Chat />
+                    <Main />
                   </Route>
                 </Switch>
+                <SideList />
               </AppBody>
             </>
           )}
@@ -56,6 +59,7 @@ export default App;
 
 const AppBody = styled.div`
   display: flex;
+  position: relative;
 `;
 
 const AppLoading = styled.div``;
