@@ -153,7 +153,7 @@ const SidebarContainer = styled.div`
   }
   @media (min-width: 768px) {
     padding-left: 1rem;
-    max-width: 200px;
+    max-width: 240px;
     margin-top: 3rem;
   }
 `;

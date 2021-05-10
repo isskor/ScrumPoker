@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 export const controller = createSlice({
   name: 'controller',
   initialState: {
-    leftSidebar: false,
+    leftSidebar: true,
     rightSidebar: false,
   },
   reducers: {

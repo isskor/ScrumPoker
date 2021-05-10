@@ -32,13 +32,19 @@ function Header() {
   return (
     <HeaderContainer>
       <HeaderLeft>
-        <button onClick={handleToggle}>i</button>
+        <button onClick={handleToggle}>{leftSidebar ? 'x' : 'i'}</button>
       </HeaderLeft>
       <HeaderRight>
         <button onClick={handleToggle2}>
-          <span className='one'></span>
-          <span className='two'></span>
-          <span className='three'></span>
+          {rightSidebar ? (
+            'x'
+          ) : (
+            <>
+              <span className='one'></span>
+              <span className='two'></span>
+              <span className='three'></span>
+            </>
+          )}
         </button>
       </HeaderRight>
     </HeaderContainer>
@@ -74,7 +80,7 @@ const HeaderContainer = styled.div`
   }
   .one {
     display: inline-block;
-    width: 34px;
+    width: 25px;
     height: 2px;
     background: gray;
   }
@@ -99,6 +105,6 @@ const HeaderLeft = styled.div`
 const HeaderRight = styled.div`
   margin-right: 20px;
   button {
-    align-items: flex-start;
+    align-items: center;
   }
 `;

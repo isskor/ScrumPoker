@@ -42,7 +42,7 @@ function TaskInput({ roomId }) {
 export default TaskInput;
 const TaskInputContainer = styled.div`
   border-radius: 20px;
-
+  margin-top: 2rem;
   > form {
     position: relative;
     display: flex;
