@@ -288,9 +288,11 @@ const Content = styled.main`
   grid-column: 1;
   justify-self: center;
   width: 100%;
+  margin-top: 2rem;
   height: calc(100vh - 180px);
 `;
 const Cards = styled.div`
+  margin-top: 1rem;
   height: calc(100vh - 340px);
   display: grid;
   grid-template-rows: repeat(3, 33%);

@@ -122,6 +122,7 @@ function Login() {
                 value={room}
                 placeholder='Enter Room ID'
                 onChange={(e) => setRoom(e.target.value)}
+                required
               />
               <button type='submit' disabled={loading}>
                 {!loading ? 'Join' : 'Loading'}
@@ -137,6 +138,7 @@ function Login() {
                 value={createRoom}
                 placeholder='Enter Room Name'
                 onChange={(e) => setCreateRoom(e.target.value)}
+                required
               />
               <label htmlFor='display_name'>Enter your Display Name</label>
               <input
@@ -145,6 +147,7 @@ function Login() {
                 value={displayName}
                 placeholder='Enter Display name'
                 onChange={(e) => setDisplayName(e.target.value)}
+                required
               />
               <button type='submit' disabled={loading}>
                 {!loading ? 'Create' : 'Loading'}
@@ -160,6 +163,7 @@ function Login() {
                 type='text'
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
+                required
               />
               <button type='submit' disabled={loading}>
                 {!loading ? 'Submit' : 'Loading'}
@@ -176,6 +180,7 @@ export default Login;
 
 const LoginContainer = styled.div`
   height: 100vh;
+
   display: grid;
   place-items: center;
 `;
@@ -185,6 +190,10 @@ const LoginInnerContainer = styled.div`
   text-align: center;
   display: flex;
   gap: 2rem;
+  flex-direction: column;
+  @media (min-width: 576px) {
+    flex-direction: row;
+  }
 
   input {
     padding: 1rem;
@@ -206,13 +215,16 @@ const LoginInnerContainer = styled.div`
 `;
 
 const JoinForm = styled.form`
-  padding: 5rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
   background-color: rgb(255, 255, 255, 0.3);
   border-radius: 10px;
+  @media (min-width: 768px) {
+    padding: 5rem;
+  }
 
   h1 {
     margin-bottom: 2rem;

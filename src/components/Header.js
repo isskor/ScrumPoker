@@ -32,12 +32,24 @@ function Header() {
   return (
     <HeaderContainer>
       <HeaderLeft>
-        <button onClick={handleToggle}>{leftSidebar ? 'x' : 'i'}</button>
+        <button onClick={handleToggle}>
+          {leftSidebar ? (
+            <>
+              <span className='x1'></span>
+              <span className='x2'></span>
+            </>
+          ) : (
+            'i'
+          )}
+        </button>
       </HeaderLeft>
       <HeaderRight>
         <button onClick={handleToggle2}>
           {rightSidebar ? (
-            'x'
+            <>
+              <span className='x1'></span>
+              <span className='x2'></span>
+            </>
           ) : (
             <>
               <span className='one'></span>
@@ -76,7 +88,8 @@ const HeaderContainer = styled.div`
     flex-direction: column;
     gap: 5px;
     justify-content: center;
-    align-items: center;
+    position: relative;
+    /* align-items: center; */
   }
   .one {
     display: inline-block;
@@ -86,20 +99,40 @@ const HeaderContainer = styled.div`
   }
   .two {
     display: inline-block;
-    width: 20px;
+    width: 23px;
     height: 2px;
+    margin-right: 2px;
     background: gray;
   }
   .three {
     display: inline-block;
+    width: 20px;
+    margin-right: 2px;
+    height: 2px;
+    background: gray;
+  }
+
+  .x1,
+  .x2 {
     width: 30px;
     height: 2px;
     background: gray;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+  .x2 {
+    transform: translate(-50%, -50%) rotate(-45deg);
   }
 `;
 
 const HeaderLeft = styled.div`
   margin-left: 20px;
+  button {
+    align-items: center;
+  }
 `;
 
 const HeaderRight = styled.div`
